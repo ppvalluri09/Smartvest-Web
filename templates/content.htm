@@ -1,0 +1,15 @@
+{% extends 'layout.htm' %}
+{% block content %}
+{% if data %}
+    <div class="container">
+        <div class="border-bottom">
+            <h2>{{title.upper()}} - <small class='text-muted'>
+                {{ data.name }}, {{ data.market_cap }}, {{ data.ipo }}, {{ data.sector }}
+            </small></h2>
+        </div>
+        <img src="/{{ title }}/open_close.png" alt="Open Close viz" class='border-bottom'/>
+        <img src="/{{ title }}/high_low.png" alt="High Low viz" class='border-bottom'/>
+        <img src="/{{ title }}/volume.png" alt="Volume viz" class='border-bottom'/>
+    </div> 
+{% endif %}
+{% endblock content %}
