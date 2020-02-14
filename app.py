@@ -9,6 +9,7 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 import io
 import sqlite3
+import pickle
 app = Flask(__name__)
 
 @app.route('/', methods=["POST", "GET"])
@@ -53,7 +54,7 @@ def create_figure(name, filename):
     fig = Figure()
     axis = fig.add_subplot(1, 1, 1)
     data = load_data(name.upper())
-    date = (int(data['Date'].values.tolist()[0][:4]), int(data['Date'].values.tolist()[-1][:4]))
+    date = (int(data['Date'].values.tolist()[-150][:4]), int(data['Date'].values.tolist()[-1][:4]))
     if filename == 'open_close':
         data = data[['Open', 'Close']].iloc[-150:, :]
         axis.plot(data['Open'], c='r', label='Open')
@@ -65,6 +66,32 @@ def create_figure(name, filename):
     elif filename == 'volume':
         data = data[['Volume']].iloc[-365:, :]
         axis.plot(data.values, c='b', label='Volume', alpha=0.7)
+    elif filename == 'forecast':
+        data = clean_data(data, ['Date', 'Ex-Dividend', 'Split Ratio', 'Adj. Open', 'Adj. High', 'Adj. Low', 'Adj. Close', 'Adj. Volume'])
+        params = (data[['Close']].mean(), data[['Close']].std())
+        data = feature_scale(data)
+        x_t = data[['Open', 'High', 'Low', 'Volume']].iloc[:-30, :]
+        x_v = data[['Open', 'High', 'Low', 'Volume']].iloc[-30:, :]
+        y_t = data[['Close']].iloc[30:, :]
+        
+        if os.path.isfile('./models/' + f'{name}'.upper() + '.sav'):
+            file = open('./models/' + f'{name}'.upper() + '.sav', 'rb')
+            model = pickle.load(file)
+            file.close()
+        else:
+            model = train_MLP(x_t.values, y_t.values)
+            with open('./models/' + f'{name}'.upper() + '.sav', 'wb') as file:
+                pickle.dump(model, file)
+        y_pred = list(model.predict(x_v))
+        
+        # rewind = lambda x: x*params[1] + params[0]
+        # y_t = y_t.apply(rewind)
+        # for ele in y_pred:
+        #     y_pred[y_pred.index(ele)] = rewind(ele)
+        
+        axis.plot([i for i in range(y_t.iloc[-30:, :].shape[0])], y_t.iloc[-30:, :].values, c='y', label='Known prices')
+        axis.plot([y_t.iloc[-30:, :].shape[0] + i for i in range(len(y_pred))], y_pred, c='m', label='Predicted Values')
+     
     axis.set_xlabel('{} - {}'.format(date[0], date[1]))
     axis.set_ylabel('Price in $')
     axis.set_title(" ".join([x.upper() for x in filename.split('_')]))

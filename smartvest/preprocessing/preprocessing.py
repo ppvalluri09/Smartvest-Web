@@ -20,4 +20,4 @@ def clean_data(df, columns):
 	return df
 
 def feature_scale(df):
-	return pd.DataFrame(Normalizer().fit_transform(StandardScaler().fit_transform(df.values)), columns=df.columns)
+	return pd.DataFrame(StandardScaler().fit_transform(df.values), columns=df.columns)

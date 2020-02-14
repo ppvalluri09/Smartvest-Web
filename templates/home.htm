@@ -4,10 +4,11 @@
 {% if comp_list %}
     {% for ele in comp_list %}
         <div class="container w-100 bg-light p-3">
-            <a href="/{{ ele[0] }}"><h4 class='text-muted'>{{ ele[0] }}</a> - <small>{{ ele[1] }}</small></h4> 
+            <a href="/{{ ele[0] }}"><h4 class='text-muted'>{{ ele[0] }}</a> - <small>{{ ele[1] }}<i class="far fa-eye ml-2"></i></small></h4> 
             <div class="d-flex flex-row bd-highlight mb-3 text-center">
-                <img src="/{{ ele[0] }}/open_close.png" alt="Open Close" class="p-2 bd-highlight" width="50%"/>
-                <img src="/{{ ele[0] }}/high_low.png" alt="Open Close" class="p-2 bd-highlight" width="50%"/>
+                <img src="/{{ ele[0] }}/open_close.png" alt="Open Close" class="p-2 bd-highlight" width="33%"/>
+                <img src="/{{ ele[0] }}/high_low.png" alt="Open Close" class="p-2 bd-highlight" width="33%"/>
+                <img src="/{{ ele[0] }}/forecast.png" alt="Open Close" class="p-2 bd-highlight" width="33%"/>
             </div>
         </div>
     {% endfor %}
