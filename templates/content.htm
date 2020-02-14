@@ -13,9 +13,11 @@
                 {% endfor %}
             </small></h2>
         </div>
-        <img src="/{{ title }}/open_close.png" alt="Open Close viz" class='border-bottom'/>
-        <img src="/{{ title }}/high_low.png" alt="High Low viz" class='border-bottom'/>
-        <img src="/{{ title }}/volume.png" alt="Volume viz" class='border-bottom'/>
+        <div class="container text-center p-5">
+            <img src="/{{ title }}/open_close.png" alt="Open Close viz" class='border-bottom w-50'/>
+            <img src="/{{ title }}/high_low.png" alt="High Low viz" class='border-bottom w-50'/>
+            <img src="/{{ title }}/volume.png" alt="Volume viz" class='border-bottom w-50'/>
+        </div>
     </div> 
 {% endif %}
 {% endblock content %}

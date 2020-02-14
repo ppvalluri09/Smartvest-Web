@@ -53,6 +53,7 @@ def create_figure(name, filename):
     fig = Figure()
     axis = fig.add_subplot(1, 1, 1)
     data = load_data(name.upper())
+    date = (int(data['Date'].values.tolist()[0][:4]), int(data['Date'].values.tolist()[-1][:4]))
     if filename == 'open_close':
         data = data[['Open', 'Close']].iloc[-150:, :]
         axis.plot(data['Open'], c='r', label='Open')
@@ -64,9 +65,10 @@ def create_figure(name, filename):
     elif filename == 'volume':
         data = data[['Volume']].iloc[-365:, :]
         axis.plot(data.values, c='b', label='Volume', alpha=0.7)
-    axis.set_xlabel('Years')
+    axis.set_xlabel('{} - {}'.format(date[0], date[1]))
     axis.set_ylabel('Price in $')
     axis.set_title(" ".join([x.upper() for x in filename.split('_')]))
+    axis.set_xticks([])
     fig.legend()
     return fig
 

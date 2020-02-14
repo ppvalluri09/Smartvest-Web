@@ -11,8 +11,8 @@ def load_data(company_symbol, domain='WIKI'):
 	if os.path.isfile(os.path.join(PATH, filename)):
 		return pd.read_csv(os.path.join(PATH, filename))
 	else:
-		df = quandl.get(domain + '/' + company_symbol)
-		df.to_csv(os.path.join(PATH, filename), index=False)
+		df = quandl.get(domain + '/' + company_symbol, collapse="daily") 
+		df.to_csv(os.path.join(PATH, filename))
 		return df
 
 def clean_data(df, columns):
