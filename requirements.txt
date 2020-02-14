@@ -5,4 +5,4 @@ Quandl==3.5.0
 Flask==1.1.1
 seaborn==0.9.0
 scikit_learn==0.22.1
-gunicorn==0.14.2
+gunicorn==19.5.0
