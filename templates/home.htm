@@ -1,4 +1,15 @@
 {% extends 'layout.htm' %}
 {% block content %}
-<h1>Hello There</h1>
+<h2 class='border-bottom'>Most Frequently Searched</h2>
+{% if comp_list %}
+    {% for ele in comp_list %}
+        <div class="container w-100" class="border-bottom">
+            <a href="/{{ ele[0] }}"><h4 class='text-muted'>{{ ele[0] }}</a> - <small>{{ ele[1] }}</small></h4> 
+            <div class="d-flex flex-row bd-highlight mb-3">
+                <img src="/{{ ele[0] }}/open_close.png" alt="Open Close" class="border p-2 bd-highlight" width="45%" height="5%"/>
+                <img src="/{{ ele[0] }}/high_low.png" alt="Open Close" class="border p-2 bd-highlight" width="45%" height="5%"/>
+            </div>
+        </div>
+    {% endfor %}
+{% endif %}
 {% endblock content %}

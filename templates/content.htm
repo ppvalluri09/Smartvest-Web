@@ -4,7 +4,13 @@
     <div class="container">
         <div class="border-bottom">
             <h2>{{title.upper()}} - <small class='text-muted'>
-                {{ data.name }}, {{ data.market_cap }}, {{ data.ipo }}, {{ data.sector }}
+                {% for ele in data[0] %}
+                    {% if ele != data[0][-1] %}
+                        {{ ele }},
+                    {% else %}
+                        {{ ele }}
+                    {% endif %}
+                {% endfor %}
             </small></h2>
         </div>
         <img src="/{{ title }}/open_close.png" alt="Open Close viz" class='border-bottom'/>

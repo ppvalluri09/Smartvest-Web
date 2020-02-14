@@ -8,6 +8,7 @@ from matplotlib import pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 import io
+import sqlite3
 app = Flask(__name__)
 
 @app.route('/', methods=["POST", "GET"])
@@ -17,22 +18,25 @@ def hello():
         company_name = request.form['company']
         return redirect(url_for('content', name=company_name))
     else:
-        return render_template('home.htm')
+        conn = connect_db('./db/smartvest.db')
+        cur = list(conn.execute('SELECT * from pop order by count desc;'))[1:]
+        return render_template('home.htm', comp_list=cur)
 
 @app.route('/<name>', methods=['GET', 'POST'])
 def content(name):
     df = pd.read_csv('./smartvest/company_list/companylist.csv')
-    df = df.loc[df['Symbol'] == f'{name}'.upper()]
-    print([ele for ele in df.iloc[:]])
-    data = {
-        'symbol': df['Symbol'].values[0],
-        'name': df['Name'].values[0],
-        'market_cap': df['MarketCap'].values[0],
-        'ipo': df['IPOyear'].values[0],
-        'sector': df['Sector'].values[0]
-    }
-    print(data)
-    return render_template('content.htm', title=f'{name}', data=data)
+    df = df.loc[df['Symbol'] == str(name).upper()][['Symbol', 'Name', 'MarketCap', 'IPOyear', 'Sector']]
+    comp_data = df.values.tolist()
+    conn = connect_db('./db/smartvest.db')
+    cur = conn.execute('SELECT * from pop where symbol = "{}"'.format(str(name).upper()))
+    print(cur)
+    if sum([len(x) for x in cur]) == 0:
+        conn.execute('INSERT INTO pop values("{}", {});'.format(str(name).upper(), 1))
+    else:
+        conn.execute('UPDATE pop SET count = count + 1 where symbol = "{}";'.format(str(name).upper()))
+    conn.commit()
+    conn.close()
+    return render_template('content.htm', title=f'{name}', data=comp_data)
 
 @app.errorhandler(404)
 def not_found_error(error):
@@ -51,12 +55,12 @@ def create_figure(name, filename):
     data = load_data(name.upper())
     if filename == 'open_close':
         data = data[['Open', 'Close']].iloc[-150:, :]
-        l1 = axis.plot(data['Open'], c='r', label='Open')
-        l2 = axis.plot(data['Close'], c='g', label = 'Close')
+        axis.plot(data['Open'], c='r', label='Open')
+        axis.plot(data['Close'], c='g', label = 'Close')
     elif filename=='high_low':
         data = data[['High', 'Low']].iloc[-150:, :]
-        l1 = axis.plot(data['High'], c='c', label='High')
-        l2 = axis.plot(data['Low'], c='m', label='Low')
+        axis.plot(data['High'], c='c', label='High')
+        axis.plot(data['Low'], c='m', label='Low')
     elif filename == 'volume':
         data = data[['Volume']].iloc[-365:, :]
         axis.plot(data.values, c='b', label='Volume', alpha=0.7)
@@ -65,6 +69,9 @@ def create_figure(name, filename):
     axis.set_title(" ".join([x.upper() for x in filename.split('_')]))
     fig.legend()
     return fig
+
+def connect_db(db):
+    return sqlite3.connect(db)
 
 if __name__ == '__main__':
     app.run(debug=True)
